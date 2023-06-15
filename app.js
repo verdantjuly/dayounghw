@@ -5,7 +5,6 @@ const indexRouter = require('./routes');
 const postsRouter = require('./routes/posts.js');
 const commentsRouter = require('./routes/comments.js');
 
-// const commentsRouter = require('./routes/comments.js');
 const connect = require('./schemas');
 connect();
 
