@@ -75,7 +75,7 @@ router.delete("/comments/:postid", async (req, res) => {
     var { postid } = req.params
     var { user, password } = req.body
 
-    var findComment = await Comments.findOne({ "postid": postid, "user": user }).select("+password")
+    var findComment = await Comments.findOne({ "postid": postid, "user": user, "password": password }).select("+password")
 
     if (findComment.password == password) {
         await Comments.deleteOne({ "postid": postid, "user": user, "password": password })

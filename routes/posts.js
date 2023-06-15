@@ -54,8 +54,9 @@ router.post("/posts", async (req, res) => {
 router.put("/posts/:postid", async (req, res) => {
     var { postid } = req.params
     var { user, password, title, content } = req.body
-    const existPost = await Posts.find({ "_id": postid, "password": password })
-    if (existPost.length) {
+    const existPost = await Posts.findOne({ "_id": postid, "user": user, "password": password }).select("+password")
+
+    if (password == existPost.password) {
         var date = new Date()
         await Posts.updateOne({ user, password, title, content, date })
         return res.status(200).json({
@@ -63,7 +64,7 @@ router.put("/posts/:postid", async (req, res) => {
         })
     }
 
-    else {
+    else if (password !== existPost.password) {
         return res.status(400).json({
             success: false,
             errorMessage: "비밀번호가 일치하지 않습니다."
@@ -74,16 +75,17 @@ router.put("/posts/:postid", async (req, res) => {
 // 게시글 삭제하기
 router.delete("/posts/:postid", async (req, res) => {
     var { postid } = req.params
-    var { password } = req.body
-    const existPost = await Posts.find({ "_id": postid, "password": password })
-    if (existPost.length) {
-        await Posts.deleteOne({ "_id": postid, "password": password })
+    var { user, password } = req.body
+    const existPost = await Posts.findOne({ "_id": postid, "user": user, "password": password }).select("+password")
+
+    if (password == existPost.password) {
+        await Posts.deleteOne({ "_id": postid, "user": user, "password": password })
         return res.status(200).json({
             "message": "게시글 " + postid + "가 삭제되었습니다."
         })
     }
 
-    else {
+    else if (password !== existPost.password) {
         return res.status(400).json({
             success: false,
             errorMessage: "비밀번호가 일치하지 않습니다."
