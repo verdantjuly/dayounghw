@@ -43,9 +43,6 @@ router.post("/posts", async (req, res) => {
 
     if (user, password, title, content) {
         var date = new Date()
-        var offset = date.getTimezoneOffset()
-        date = date - offset
-
 
         await Posts.create({ user, password, title, content, date })
         return res.status(201).json({ "message": "게시글이 작성되었습니다." })
