@@ -2,8 +2,7 @@ const mongoose = require("mongoose")
 
 const commentScheama = new mongoose.Schema({
     user: {
-        type: String,
-        unique: true
+        type: String
     },
 
     password: {
