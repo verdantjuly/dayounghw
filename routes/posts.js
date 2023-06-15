@@ -58,7 +58,7 @@ router.put("/posts/:postid", async (req, res) => {
 
     if (password == existPost.password) {
         var date = new Date()
-        await Posts.updateOne({ user, password, title, content, date })
+        await Posts.findByIdAndUpdate(postid, { user, password, title, content, date })
         return res.status(200).json({
             "message": "게시글 " + postid + "가 수정되었습니다."
         })
@@ -79,7 +79,7 @@ router.delete("/posts/:postid", async (req, res) => {
     const existPost = await Posts.findOne({ "_id": postid, "user": user, "password": password }).select("+password")
 
     if (password == existPost.password) {
-        await Posts.deleteOne({ "_id": postid, "user": user, "password": password })
+        await Posts.findByIdAndDelete({ postid, "_id": postid, "user": user, "password": password })
         return res.status(200).json({
             "message": "게시글 " + postid + "가 삭제되었습니다."
         })
