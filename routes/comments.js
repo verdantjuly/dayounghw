@@ -29,6 +29,8 @@ router.post("/comments/:postid", async (req, res) => {
     var { postid } = req.params
     var { user, password, content } = req.body
     var date = new Date()
+    var offset = date.getTimezoneOffset()
+    date = date - offset
 
     if (!content) {
         return res.status(400).json({
@@ -53,7 +55,7 @@ router.put("/comments/:postid", async (req, res) => {
     var { postid } = req.params
     var { user, password, content } = req.body
     var date = new Date()
-    date = date.toString().substr(0, 24)
+    date = date.toString()
 
     if (!content) {
         return res.status(400).json({
