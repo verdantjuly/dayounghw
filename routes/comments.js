@@ -18,7 +18,7 @@ router.get("/comments/:postid", async (req, res) => {
             "message": "작성된 댓글이 없습니다. 첫 작성자가 되어 주세요!"
         })
     } else {
-        return res.status(200).json({ "posts": allComments })
+        return res.status(200).json({ "comments": allComments })
     }
 
 })
@@ -44,11 +44,11 @@ router.post("/comments/:postid", async (req, res) => {
 
 
 // 댓글 수정하기
-router.put("/comments/:postid", async (req, res) => {
-    var { postid } = req.params
+router.put("/comments/:commentid", async (req, res) => {
+    var { commentid } = req.params
     var { user, password, content } = req.body
     var date = new Date()
-    var findComment = await Comments.findOne({ "postid": postid, "user": user }).select("+password")
+    var findComment = await Comments.findOne({ "_id": commentid, "user": user }).select("+password")
 
 
     if (!content) {
@@ -57,8 +57,8 @@ router.put("/comments/:postid", async (req, res) => {
             errorMessage: "수정할 댓글 내용을 입력해주세요."
         })
     } else if (findComment.password == password) {
-        await Comments.updateOne({ "user": user, "password": password, "postid": postid, "content": content, "date": date })
-        return res.status(201).json({ "message": "postid: " + postid + " 에 대한 " + user + "의 댓글이 수정되었습니다." })
+        await Comments.updateOne({ "user": user, "password": password, "content": content, "date": date })
+        return res.status(201).json({ "message": "_id: " + commentid + " 에 대한 " + user + "의 댓글이 수정되었습니다." })
     } else if (findComment.password !== password) {
         return res.status(400).json({
             success: false,
@@ -71,16 +71,16 @@ router.put("/comments/:postid", async (req, res) => {
 
 // 댓글 삭제하기
 
-router.delete("/comments/:postid", async (req, res) => {
-    var { postid } = req.params
+router.delete("/comments/:commentid", async (req, res) => {
+    var { commentid } = req.params
     var { user, password } = req.body
 
-    var findComment = await Comments.findOne({ "postid": postid, "user": user, "password": password }).select("+password")
+    var findComment = await Comments.findOne({ "_id": commentid, "user": user, "password": password }).select("+password")
 
     if (findComment.password == password) {
-        await Comments.deleteOne({ "postid": postid, "user": user, "password": password })
+        await Comments.deleteOne({ "_id": commentid, "user": user, "password": password })
         return res.status(200).json({
-            "message": "postid: " + postid + " 에 대한 " + user + "의 댓글이 삭제되었습니다."
+            "message": "_id: " + commentid + " 에 대한 " + user + "의 댓글이 삭제되었습니다."
         })
 
     } else if (findComment.password !== password) {
