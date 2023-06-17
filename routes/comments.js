@@ -1,18 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const Comments = require("../schemas/comment.js")
+const mongoose = require("mongoose")
+const { ObjectId } = mongoose.Types;
+
 
 // 댓글 전체 조회하기
-router.get("/comments/:postid", async (req, res) => {
+router.get("/:postid", async (req, res) => {
     var { postid } = req.params
-    const allComments = await Comments.find({ "postid": postid })
-    allComments.sort(
-        function (prev, next) {
-            if (prev.date > next.date) { return -1 }
-            else if (prev.date == next.date) { return 0 }
-            else if (prev.date < next.date) { return 1 }
-        }
-    )
+
+    const allComments = await Comments.find({ postid }).sort({ updatedAt: -1 })
+
+    if (!ObjectId.isValid(postid)) {
+        res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
+    }
+
     if (!allComments.length) {
         return res.status(200).json({
             "message": "작성된 댓글이 없습니다. 첫 작성자가 되어 주세요!"
@@ -25,18 +27,20 @@ router.get("/comments/:postid", async (req, res) => {
 
 
 // 댓글 작성하기 
-router.post("/comments/:postid", async (req, res) => {
+router.post("/:postid", async (req, res) => {
     var { postid } = req.params
     var { user, password, content } = req.body
-    var date = new Date()
 
     if (!content) {
         return res.status(400).json({
             success: false,
             errorMessage: "작성할 댓글 내용을 입력해주세요."
         })
-    } else {
-        await Comments.create({ "user": user, "password": password, "content": content, "date": date, "postid": postid })
+    } else if (!ObjectId.isValid(postid) || !postid || !user || !password) {
+        res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
+    }
+    else {
+        await Comments.create({ user, password, content, postid })
         return res.status(201).json({ "message": "댓글이 작성되었습니다. 고객님의 사용자 이름은 " + user + "입니다." })
     }
 
@@ -44,11 +48,10 @@ router.post("/comments/:postid", async (req, res) => {
 
 
 // 댓글 수정하기
-router.put("/comments/:commentid", async (req, res) => {
+router.put("/:commentid", async (req, res) => {
     var { commentid } = req.params
     var { user, password, content } = req.body
-    var date = new Date()
-    var findComment = await Comments.findOne({ "_id": commentid, "user": user }).select("+password")
+    var findComment = await Comments.findOne({ "_id": commentid, user }).select("+password")
 
 
     if (!content) {
@@ -57,13 +60,10 @@ router.put("/comments/:commentid", async (req, res) => {
             errorMessage: "수정할 댓글 내용을 입력해주세요."
         })
     } else if (findComment.password == password) {
-        await Comments.updateOne({ "user": user, "password": password, "content": content, "date": date })
+        await Comments.findByIdAndUpdate(commentid, { content })
         return res.status(201).json({ "message": "_id: " + commentid + " 에 대한 " + user + "의 댓글이 수정되었습니다." })
-    } else if (findComment.password !== password) {
-        return res.status(400).json({
-            success: false,
-            errorMessage: "비밀번호가 일치하지 않습니다."
-        })
+    } else if (!ObjectId.isValid(id) || !password) {
+        res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
     }
 })
 
@@ -71,23 +71,22 @@ router.put("/comments/:commentid", async (req, res) => {
 
 // 댓글 삭제하기
 
-router.delete("/comments/:commentid", async (req, res) => {
+router.delete("/:commentid", async (req, res) => {
     var { commentid } = req.params
     var { user, password } = req.body
 
-    var findComment = await Comments.findOne({ "_id": commentid, "user": user, "password": password }).select("+password")
+    var findComment = await Comments.findOne({ "_id": commentid, user }).select("+password")
+
+    if (!ObjectId.isValid(commentid) || !password) {
+        res.status(400).json({ message: '데이터 형식이 올바르지 않습니다.' });
+    }
 
     if (findComment.password == password) {
-        await Comments.deleteOne({ "_id": commentid, "user": user, "password": password })
+        await Comments.findByIdAndDelete({ "_id": commentid })
         return res.status(200).json({
             "message": "_id: " + commentid + " 에 대한 " + user + "의 댓글이 삭제되었습니다."
         })
 
-    } else if (findComment.password !== password) {
-        return res.status(400).json({
-            success: false,
-            errorMessage: "비밀번호가 일치하지 않습니다."
-        })
     }
 
 })

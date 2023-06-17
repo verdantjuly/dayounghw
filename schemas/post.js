@@ -15,17 +15,13 @@ const postScheama = new mongoose.Schema({
     },
     content: {
         type: String,
-    },
-    __v: {
-        type: Number,
-        select: false
-    },
-    date: {
-        type: Date,
-
-
     }
-})
+},
+    {
+        timestamps: true,
+        versionKey: false,
+    }
+)
 
 
 module.exports = mongoose.model("Posts", postScheama)

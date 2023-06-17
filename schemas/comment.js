@@ -15,18 +15,15 @@ const commentScheama = new mongoose.Schema({
         type: String
     },
 
-    __v: {
-        type: Number,
-        select: false
-    },
-
-    date: {
-        type: Date,
-    },
-
     postid: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post'
     }
-})
+},
+    {
+        timestamps: true,
+        versionKey: false
+    }
+)
 
 module.exports = mongoose.model("Comments", commentScheama)
