@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Comments = require("../schemas/comment.js")
+const Comments = require("../modules/comment.js")
 const mongoose = require("mongoose")
 const { ObjectId } = mongoose.Types;
 

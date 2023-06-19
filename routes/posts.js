@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Posts = require("../schemas/post.js")
+const Posts = require("../modules/post.js")
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Types;
 
